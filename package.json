@@ -1,0 +1,17 @@
+{
+  "name": "todo",
+  "scripts": {
+    "dev": "tsx watch src/learn.js"
+  },
+  "dependencies": {
+    "@hono/node-server": "^1.12.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "hono": "^4.5.3",
+    "mongodb": "^6.8.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.17",
+    "tsx": "^4.7.1"
+  }
+}
