@@ -1,81 +1,102 @@
-import { serve } from '@hono/node-server'
-import { Hono } from 'hono'
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
+import { Collection, Document, MongoClient } from 'mongodb';
+import { ObjectId } from 'mongodb';
+import 'dotenv/config'
+import { env } from 'hono/adapter'
+import { basicAuth } from 'hono/basic-auth'
 
-const app = new Hono()
+require('dotenv').config()
 
-app.get('/', (c) => {
-  return c.text('Hello Hono!')
+const app = new Hono();
+
+app.use('*', async (c, next) => {
+  c.res.headers.set('Access-Control-Allow-Origin', '*');
+  c.res.headers.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+  c.res.headers.set('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (c.req.method === 'OPTIONS') {
+    return new Response(null, { status: 204 });
+  }
+
+  return next();
+});
+
+
+app.use(
+  '/*',
+  basicAuth({
+    username: 'hono',
+    password: 'acoolproject',
+  })
+)
+
+const client = new MongoClient(process.env.URI!);
+
+let db;
+let imagesCollection: Collection<Document>;
+
+client.connect().then(() => {
+  db = client.db('pintrest');
+  imagesCollection = db.collection('images');
+  console.log('Connected to MongoDB');
+});
+
+app.get('/', async (c) => {
+  return c.text('hello venky')
 })
 
-const port = 3000
-console.log(`Server is running on port ${port}`)
+app.post('/postImage', async (c) => {
+  const { title, imageUrl } = await c.req.json();
+  const newImage = { title, imageUrl };
+  
+  await imagesCollection.insertOne(newImage); 
+  const images = await imagesCollection.find({}).toArray();
+  console.log(images);
+  return c.json(images);
+});
 
+app.get("/secret/hello", async (c) => {
+  return c.text("hello world")
+})
+
+app.get('/getImages', async (c) => {
+  const images = await imagesCollection.find({}).toArray();
+  return c.json(images);
+});
+
+app.post('/getImage', async (c) => {
+  const { searchTitle } = await c.req.json();
+  console.log(searchTitle);
+  const searchImage = await imagesCollection.find({
+    title: { $regex: searchTitle, $options: 'i' }
+  }).toArray();
+  return c.json(searchImage);
+});
+
+app.delete('/deleteImage/:id', async (c) => {
+  const { id } = c.req.param();
+  try {
+    const result = await imagesCollection.deleteOne({ _id: new ObjectId(id) });
+    if (result.deletedCount === 0) {
+      return c.json({ message: 'No image found with that id' }, 404);
+    }
+    const images = await imagesCollection.find({}).toArray();
+    console.log(images);
+    return c.json(images);
+  } catch (error) {
+    console.error('Error deleting image:', error);
+    return c.json({ message: 'Error deleting image' }, 500);
+  }
+});
+
+
+console.log("Server is running");
+
+const port = 3000;
 serve({
   fetch: app.fetch,
   port
-})
+});
 
-let arr:number[]=[1,2,3]
-
-let num:Array<string>=["hi","hello"]
-
-type User={
-    name:string
-    age:number
-    isActive?:boolean
-}
-
-type Admin=User&{
-    role:"hr"|"ceo"|"cto"
-}
-
-let user:User={name:"Venky",age:20}
-
-let allUsers:User[]=[];
-allUsers.push(user)
-
-type num=number
-let a:num=1
-
-let rgb:[number,number,number]=[2,2,3]
-
-let users:(number| string)[]=[1,2,3,""]
-
-const enum seatChoice{
-    asile="asile",
-    middle="middle",
-    window="window"
-}
-
-const seat=seatChoice.middle
-
-interface inf1{
-    readonly dbId:number
-    name:string
-    age:number
-    startTrail():string
-    startFun(name:string,age:number):string
-}
-
-interface inf1{
-    isActive:boolean
-}
-
-interface inf2 extends inf1
-{
-    admin:"hr"|"cto"|"ceo"
-}
-
-const b:inf1={name:"Venky",age:20,dbId:1,startTrail:()=>{
-    return "hello"
-    },
-    startFun:(user,num)=>
-    {return user
-    },isActive:true}
-
-function functionOne <T>(val:T):T{
-    return val
-}
-
-functionOne(2)
-functionOne("Hello") //It accepts any type and lock the type and return the same type which is been accepted
+export default app;
