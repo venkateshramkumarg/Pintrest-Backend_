@@ -30,7 +30,7 @@ app.use(
   })
 )
 
-const uri = 'mongodb://root:8N6KvWWRUC8mROnlh5Wibj6IM5CQL7t7eIRdtn7Vpoz8TRJZL45iDmmYS8BXlNUw@5.75.185.34:5463/?directConnection=true';
+const uri =env.URI;
 const client = new MongoClient(uri);
 
 let db;
