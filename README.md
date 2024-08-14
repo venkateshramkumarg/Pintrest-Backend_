@@ -1,6 +1,6 @@
-# Todo API
+# Pintrest API
 
-Welcome to the Todo API. This application allows users to create, retrieve, and delete images through a RESTful API.
+Welcome to the Pintrest API. This application allows users to create, retrieve, and delete images through a RESTful API.
 
 ## Table of Contents
 
