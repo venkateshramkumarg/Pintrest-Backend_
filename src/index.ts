@@ -3,7 +3,6 @@ import { serve } from '@hono/node-server';
 import { Collection, Document, MongoClient } from 'mongodb';
 import { ObjectId } from 'mongodb';
 import 'dotenv/config'
-import { env } from 'hono/adapter'
 import { basicAuth } from 'hono/basic-auth'
 
 require('dotenv').config()
