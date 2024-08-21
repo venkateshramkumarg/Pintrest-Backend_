@@ -1,6 +1,6 @@
-# Pintrest API
+# Pinterest API
 
-Welcome to the Pintrest API. This application allows users to create, retrieve, and delete images through a RESTful API.
+Welcome to the Pinterest API. This application allows users to create, retrieve, and delete images through a RESTful API
 
 ## Table of Contents
 
